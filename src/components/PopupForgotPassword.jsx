@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Modal from "react-modal";
 import axios from "axios";
+import Loading from '../assets/images/loading.gif';
 
 Modal.setAppElement("#root");
 
@@ -9,7 +10,8 @@ function PopupForgotPassword({ onClose }) {
     onClose();
   };
   const [email, setEmail] = useState();
-  const [messageCallback, setMessageCallback] = useState();
+  const [messageCallback, setMessageCallback] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const handleChangeEmail = (e) => {
     setEmail(e.target.value);
   };
@@ -17,6 +19,8 @@ function PopupForgotPassword({ onClose }) {
     e.preventDefault();
     const formData = new FormData();
     formData.append("email", email);
+    setMessageCallback("");
+    setIsLoading(true);
     try {
       const response = await axios.post(
         "http://localhost:3001/auth/sendmailpassword",
@@ -24,25 +28,28 @@ function PopupForgotPassword({ onClose }) {
           email: email,
         }
       );
-      if (response.data.status === "send_reset_success") {
-        setMessageCallback(response.data.massage);
+      if (response.data.status === "send_mail_success") {
+        setMessageCallback("Sent mail success");
         // onClose();
       } else {
-        setMessageCallback(response.data.massage);
+        setMessageCallback("Reset password error");
       }
+      setIsLoading(false);
       // if (response.data.msg !== "Fail!") {
       //   navigate("/login");
       // } else {
       //   setMessageCallback("Account already exists");
       // }
     } catch (error) {
-      console.log(error);
+      setIsLoading(false);
+      if(error){
+        setMessageCallback("Reset password error");
+      }
       //   if (error.response.data) {
       //     setMessageCallback(error.response.data.errors[0].msg);
       //   }
     }
   };
-
   return (
     <Modal
       className="popup-modal"
@@ -78,7 +85,7 @@ function PopupForgotPassword({ onClose }) {
           <label htmlFor="email" className="text-l mb-6 text-left">
             <span className="pl-2 font-bold">Your Email</span>
             <input
-              className="border rounded py-2 px-3 mb-6 w-full bg-ededed mt-2"
+              className="border rounded py-2 px-3 mb-4 w-full bg-ededed mt-2"
               type="email"
               id="email"
               required
@@ -89,31 +96,36 @@ function PopupForgotPassword({ onClose }) {
                 fontSize: "0.8rem",
                 color: "#b1b1b1",
                 fontWeight: "400",
-                marginBottom: "20px",
+                marginBottom: "10px",
               }}
             >
               * Add your email and get code
             </p>
           </label>
-          {messageCallback && (
+          {messageCallback !== "" && (
             <p
               style={{
                 fontSize: "1rem",
                 color: "#ff0000",
                 fontWeight: "700",
-                marginBottom: "20px",
+                marginBottom: "10px",
               }}
               component={"p"}
             >
               {messageCallback}
             </p>
           )}
-          <button
+
+          {isLoading ? <p
+            className="bg-blue-500 hover:bg-blue-700 text-white inline-block font-bold py-2 px-4 rounded"
+          >
+            <img src={Loading} width={"25px"} alt="loading" />
+          </p> : <button
             type="submit"
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
           >
             Send
-          </button>
+          </button>}
         </form>
       </div>
     </Modal>

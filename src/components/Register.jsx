@@ -4,11 +4,13 @@ import { useNavigate } from "react-router-dom";
 import { TEInput, TERipple } from "tw-elements-react";
 import Upload from "../assets/images/upload.png";
 import { getInforUser } from "../untils/functions";
+import Loading from '../assets/images/loading.gif';
 
 const Register = () => {
   const navigate = useNavigate();
   const [selectedFile, setSelectedFile] = useState(null);
   const [statusMail, setStatusMail] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const handleFileChange = (event) => {
     setSelectedFile(event.target.files[0]);
   };
@@ -40,6 +42,7 @@ const Register = () => {
   const handleSubmitRegister = async (e) => {
     e.preventDefault();
     setMessageCallback("");
+    setIsLoading(true);
     const formData = new FormData();
     formData.append("email", inforuser.username);
     formData.append("password", inforuser.password);
@@ -57,11 +60,12 @@ const Register = () => {
         }
       );
       if (response.data.status === "verify_success") {
-       alert("Register Success!!!");
-       navigate("/login");
+        alert("Register Success!!!");
+        navigate("/login");
       } else {
         setMessageCallback(response.data.message);
       }
+      setIsLoading(false);
       // if (response.data.msg !== "Fail!") {
       //   navigate("/login");
       // } else {
@@ -69,6 +73,7 @@ const Register = () => {
       // }
     } catch (error) {
       console.log(error);
+      setIsLoading(false);
       // if (error.response.data) {
       //   setMessageCallback(error.response.data.errors[0].msg);
       // }
@@ -77,6 +82,8 @@ const Register = () => {
   const handleSubmitSendMail = async (e) => {
     e.preventDefault();
     const formData = new FormData();
+    setMessageCallback("");
+    setIsLoading(true);
     formData.append("email", inforuser.username);
     formData.append("password", inforuser.password);
     formData.append("name", inforuser.name);
@@ -99,6 +106,7 @@ const Register = () => {
         } else {
           setMessageCallback("Account already exists");
         }
+        setIsLoading(false);
         // if (response.data.msg !== "Fail!") {
         //   navigate("/login");
         // } else {
@@ -106,6 +114,7 @@ const Register = () => {
         // }
       } catch (error) {
         console.log(error);
+        setIsLoading(false);
         if (error.response.data) {
           setMessageCallback(error.response.data.errors[0].msg);
         }
@@ -259,7 +268,7 @@ const Register = () => {
                     fontSize: "0.8rem",
                     color: "#b1b1b1",
                     fontWeight: "400",
-                    marginBottom: "20px",
+                    marginBottom: "10px",
                   }}
                 >
                   * Password must be at least 6 characters long and include
@@ -271,7 +280,7 @@ const Register = () => {
                       fontSize: "1rem",
                       color: "#ff0000",
                       fontWeight: "700",
-                      marginBottom: "20px",
+                      marginBottom: "10px",
                     }}
                     component={"p"}
                   >
@@ -284,7 +293,7 @@ const Register = () => {
                     label="Code"
                     name="verificationCode"
                     size="lg"
-                    className="mb-6"
+                    className="mb-3"
                     onChange={handleOnChange}
                     required
                   ></TEInput>
@@ -292,12 +301,16 @@ const Register = () => {
                 {/* <!-- Register button --> */}
                 <div className="text-center lg:text-left">
                   <TERipple rippleColor="light">
-                    <button
+                    {isLoading ? <p
+                      className="bg-blue-500 w-[117px] flex items-center justify-center hover:bg-blue-700 text-white inline-block font-bold py-2 px-4 rounded"
+                    >
+                      <img src={Loading} width={"25px"} alt="loading" />
+                    </p> : <button
                       type="submit"
                       className="inline-block rounded bg-primary px-7 pb-2.5 pt-3 text-sm font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_#3b71ca] transition duration-150 ease-in-out hover:bg-primary-600 hover:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] focus:bg-primary-600 focus:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] focus:outline-none focus:ring-0 active:bg-primary-700 active:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] dark:shadow-[0_4px_9px_-4px_rgba(59,113,202,0.5)] dark:hover:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)] dark:focus:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)]"
                     >
                       Register
-                    </button>
+                    </button>}
                   </TERipple>
 
                   {/* <!-- Register link --> */}
